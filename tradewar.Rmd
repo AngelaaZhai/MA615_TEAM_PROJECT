@@ -13,6 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library("tidyverse")
 war <- read_xlsx("usaimport.xlsx")
 colnames(war)<-c("Commodity","Country","Time","Money")
+liveanimalchina<-filter(.data = war, Country =="China") %>%
+  filter(str_detect(Commodity , "Live Animals")) %>%
+  filter(str_detect(Time, starts_with("201")))
 ```
 
 ## Including Plots
@@ -20,7 +23,9 @@ colnames(war)<-c("Commodity","Country","Time","Money")
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+
+
+ a<-group_by(.data = liveanimalchina, Time)
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
