@@ -1,0 +1,87 @@
+---
+title: "Iron And Steel"
+author: "Yudi Mao"
+date: "9/30/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+```
+
+## Iron&Steel import changes from major countries through 2015-2018
+
+Data used is from data of import of the United States.(https://usatrade.census.gov/data)
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(magrittr)
+
+#Input data
+usaimport_ds <- read_xlsx("usaimport.xlsx")
+colnames(usaimport_ds) <- c("Commodity","Country","Time","Money")
+
+#Filter the subset
+iron_steel <- filter(usaimport_ds, Commodity == "72 Iron And Steel")
+
+#Transfor money to per million
+iron_steel$Money <- round(as.numeric(iron_steel$Money) / 1000000, 1)
+```
+
+## Pic.1 Import throughout a year
+
+We use average import per month to predict 2018.
+
+```{r}
+#Predict 2018
+iron_steel$Time[which(iron_steel$Time == "2018 through July")] <- "predicted 2018"
+iron_steel$Money[which(iron_steel$Time == "2018")] <- round(iron_steel$Money[which(iron_steel$Time == "predicted 2018")]*12/7, 1)
+
+year_ds <- filter(iron_steel, Time %in% c("2015", "2016", "2017", "predicted 2018"))
+
+#Histogram of different countries and areas
+ggplot(data = year_ds) +
+  geom_bar(mapping = aes(x = Time, y = Money, fill = Country), stat = "identity") +
+  ggtitle("Import of different countries and areas per year, by Yudi Mao")
+```
+
+From this histogram, we can roughly conclude that iron&steel import from China decreased these years, especially 2016 compared to 2015. Import from European Union roughly remained the same level, although its predicted amount of 2018 will also decrease, but slightly.
+
+However, we notice that the amount of iron&steel import from European Union is far larger than others, which makes other countries hard to intepret. Meanwhile, we have drawed conclusion between China and EU. Thus:
+
+In next histogram, EU will be removed, and other countries will be showed in their proportion of import of the United States.
+
+## Pic.2 Proportion of each country (European Union excluded)
+
+```{r}
+#Exclude EU
+year_ds_euex <- filter(year_ds, Country != "European Union")
+
+#Histogram of proportion
+ggplot(data = year_ds_euex) +
+  geom_bar(mapping = aes(x = Time, y = Money, fill = Country), stat = "identity", position = "fill") +
+  ggtitle("Import proportion of different countries per year, by Yudi Mao")
+```
+
+In pic.2, we can roughly conclude that inport from China decreased from 2015-2017, while inport from Germany and Italy increased. Other countries roughly remained the same level.
+
+## Pic.3 Line chart of inport per month of China and European Union through 2017-2018
+
+In this picture, we will only use data of China and EU, but more precise from yearly data to monthly data.
+
+```{r}
+#data of China and EU per month
+month_ds <- filter(iron_steel, !Time %in% c("2015", "2016", "2017", "predicted 2018"))
+month_ds <- filter(month_ds, Country %in% c("China", "European Union"))
+
+#Curve the line
+ggplot(data = month_ds) +
+  geom_bar(mapping = aes(x = Time, y = Money, fill = Country), stat = "identity", position = "dodge") +
+  ggtitle("Import of China and EU per month, by Yudi Mao") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5))
+```
+
+Roughly, both import from China and EU per month fluctuated among 2017-2018.
+
+
