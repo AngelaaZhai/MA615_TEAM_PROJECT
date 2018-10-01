@@ -1,22 +1,25 @@
 ---
 title: "Assignment 3"
-author: "Yudi Mao/Longhao Chen/Tianying Xu/Xiaolu Zai"
+author: "Yudi Mao/Longhao Chen/Tianying Xu/Angela Zhai"
 date: "9/30/2018"
 output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+pacman::p_load("tidyverse", "stringr", "varhandle", "readxl", "magrittr")
 ```
+
+# The following portiong is contributed by Yudi Mao
 
 ## Iron&Steel import changes from major countries through 2015-2018
 
 Data used is from data of import of the United States.(https://usatrade.census.gov/data)
 
-```{r}
-library(tidyverse)
-library(readxl)
-library(magrittr)
+```{r echo=FALSE}
+#library(tidyverse)
+#library(readxl)
+#library(magrittr)
 
 #Input data
 usaimport_ds <- read_xlsx("usaimport.xlsx")
@@ -33,7 +36,7 @@ iron_steel$Money <- round(as.numeric(iron_steel$Money) / 1000000, 1)
 
 We use average import per month to predict 2018.
 
-```{r}
+```{r echo=FALSE}
 #Predict 2018
 iron_steel$Time[which(iron_steel$Time == "2018 through July")] <- "predicted 2018"
 iron_steel$Money[which(iron_steel$Time == "2018")] <- round(iron_steel$Money[which(iron_steel$Time == "predicted 2018")]*12/7, 1)
@@ -43,7 +46,7 @@ year_ds <- filter(iron_steel, Time %in% c("2015", "2016", "2017", "predicted 201
 #Histogram of different countries and areas
 ggplot(data = year_ds) +
   geom_bar(mapping = aes(x = Time, y = Money, fill = Country), stat = "identity") +
-  ggtitle("Import of different countries and areas per year, by Yudi Mao")
+  ggtitle("Import of different countries and areas per year")
 ```
 
 From this histogram, we can roughly conclude that iron&steel import from China decreased these years, especially 2016 compared to 2015. Import from European Union roughly remained the same level, although its predicted amount of 2018 will also decrease, but slightly.
@@ -54,14 +57,14 @@ In next histogram, EU will be removed, and other countries will be showed in the
 
 ## Pic.2 Proportion of each country (European Union excluded)
 
-```{r}
+```{r echo=FALSE}
 #Exclude EU
 year_ds_euex <- filter(year_ds, Country != "European Union")
 
 #Histogram of proportion
 ggplot(data = year_ds_euex) +
   geom_bar(mapping = aes(x = Time, y = Money, fill = Country), stat = "identity", position = "fill") +
-  ggtitle("Import proportion of different countries per year, by Yudi Mao")
+  ggtitle("Import proportion of different countries per year")
 ```
 
 In pic.2, we can roughly conclude that inport from China decreased from 2015-2017, while inport from Germany and Italy increased. Other countries roughly remained the same level.
@@ -70,7 +73,7 @@ In pic.2, we can roughly conclude that inport from China decreased from 2015-201
 
 In this picture, we will only use data of China and EU, but more precise from yearly data to monthly data.
 
-```{r}
+```{r echo=FALSE}
 #data of China and EU per month
 month_ds <- filter(iron_steel, !Time %in% c("2015", "2016", "2017", "predicted 2018"))
 month_ds <- filter(month_ds, Country %in% c("China", "European Union"))
@@ -78,7 +81,7 @@ month_ds <- filter(month_ds, Country %in% c("China", "European Union"))
 #Curve the line
 ggplot(data = month_ds) +
   geom_bar(mapping = aes(x = Time, y = Money, fill = Country), stat = "identity", position = "dodge") +
-  ggtitle("Import of China and EU per month, by Yudi Mao") +
+  ggtitle("Import of China and EU per month") +
   theme(axis.text.x = element_text(angle = 45, hjust = 0.5, vjust = 0.5))
 ```
 
@@ -86,10 +89,10 @@ Roughly, both import from China and EU per month fluctuated among 2017-2018.
 
 
 
-#The following portiong of HW_3 is contributed by Longhao Chen.
+#The following portiong is contributed by Longhao Chen
 
 
-Data (how you generated it)
+##Data (how you generated it)
 
 The method I generate the data is to first find the raw data from this website 
 
@@ -97,11 +100,11 @@ https://www.census.gov/foreign-trade/index.html
 
 Then, I registered an account and selected the data that most interests me. Then I downloaded the data into my local computer and load it into RStudio. After some manipulation, I subset the data to a smaller size and name them liveanimalchina and aluminum.
 
-Visualization and Discussion
+##Visualization and Discussion
 
-```{r cars}
-library(tidyverse)
-library(readxl)
+```{r cars, echo=FALSE}
+#library(tidyverse)
+#library(readxl)
 war <- read_xlsx("usaimport.xlsx")
 colnames(war)<-c("Commodity","Country","Time","Money")
 liveanimalchina<-filter(.data = war, Country =="China") %>%
@@ -112,7 +115,7 @@ b<-rbind(liveanimalchina, c("01 Live Animals","China","Predicted 2018",(22919535
 b$Money=as.numeric((b$Money))
 ggplot(data = b, aes(x = Time, y = Money)) +
 geom_bar(stat = "identity") +
-labs(title = "Yearly live animal imported from China_Longhao Chen") +
+labs(title = "Yearly live animal imported from China") +
   scale_y_continuous(limits=c(0,NA))
 
 aluminum<-filter(.data = war, Country == "China") %>%
@@ -122,7 +125,7 @@ aluminum$Time <- factor(aluminum$Time, levels = aluminum$Time)
 
 ggplot(data = aluminum, aes(x=Time, y = Money)) +
   geom_line(group = 1) +
-  labs(title="Monthly aluminum imported from China_Longhao Chen") +
+  labs(title="Monthly aluminum imported from China") +
   theme(axis.text.x=element_text(angle=90,margin = margin(5, unit = "mm"),vjust =1)) +
   scale_y_continuous(limits=c(0,NA))
 ```
@@ -133,19 +136,20 @@ What we can see from this graph is there is not huge impact on live animal based
 
 The second graph zooms in for the monthly imported value of alluminum from Jan 2017 to July 2018. From this graph, we do see a decreasing value of imported alluminum in June 2018 and July 2018 compared to June 2017 and July 2017. This could be an indication of the tariffs.
 
-Conslusion
+##Conslusion
 The impact of tariffs towards the imported commodities China is starting to accumulate. However, it has different impacts towards different commodities. For aluminum, tariffs definately changes the trade between China and U.S.A. However, it is too not eacy to predict the impact on live animal. 
 
 
 
-#The following portiong of HW_3 is contributed by Tianying Xu.
-Data
+#The following portiong is contributed by Tianying Xu
+
+##Data
 
 I am interested in importation of U.S. from other countries in the silk field. Thus, I filter the raw data to importation of silk only, then omit the NAs, finally filter data to only monthly amount. 
 
-```{r}
-pacman::p_load(readxl)
-library(dplyr)
+```{r echo=FALSE}
+#pacman::p_load(readxl)
+#library(dplyr)
 D=read_xlsx("usaimport.xlsx",skip=3,col_names=c("Commodity","Country","Time","Money"))  %>%
   filter(Commodity=="50 Silk, Including Yarns And Woven Fabric Thereof") %>%
   na.omit() %>%
@@ -154,11 +158,11 @@ D=read_xlsx("usaimport.xlsx",skip=3,col_names=c("Commodity","Country","Time","Mo
 
 
 
-Data visulization and analysis
+##Data visulization and analysis
 
 For importation trend in the silk field, I would love to compare the importation amount of several countries to discover the whole trend.
 
-```{r}
+```{r echo=FALSE}
 t_l=unique(D$Time)
 D$Time=factor(D$Time,levels=t_l,ordered = TRUE)
 
@@ -166,13 +170,13 @@ ggplot(D,mapping = aes(x=Time,y=Money))+
   geom_point(aes(colour=factor(Country)))+
   geom_line(aes(group=Country),colour="grey")+
   theme(axis.text.x=element_text(angle=90),plot.title = element_text(hjust = 0.5)) +
-  labs(title="Importation of silk --Tianying Xu")
+  labs(title="Importation of silk")
 ```
 
 This plot indicates importation of silk from several countries from January 2017 to July 2018. From this plot, we could see that there are patterns in importation of China, European Union and Italy, and the amount of these countries are large. Also, Italy has the similar trend with European Union because Italy is a big part of importation from European Union. For France, Germany, Spain and United Kingdom, the amount is relatively small. Thus, I will choose China and European Union to do a deeper analysis.
 
 
-```{r}
+```{r echo=FALSE}
 D1=D %>%
   select(Country,Time,Money) %>%
   filter(Country=="China" | Country=="European Union")
@@ -180,15 +184,45 @@ D1=D %>%
 ggplot(D1,mapping = aes(x=Time,y=Money,fill=factor(Country)))+
   geom_bar(position="dodge",stat = "identity")+
   theme(axis.text.x=element_text(angle=90),plot.title = element_text(hjust = 0.5)) +
-  labs(title="Importation of silk --Tianying Xu")
+  labs(title="Importation of silk")
 ```
 
 This bar plot describe the importation of Chine and European Union during January 2017 to July 2018. From this plot, we could see that on average, importation from Europre Union is slightly higher than from China. Also, when importation from China decreases, importation from European Union increases, like the cases in Feburary 2017, June 2017, July 2017, October 2017 and March 2018. Although importation from China decreases in March 2018, it increases later, which may not be affected by the tariffs.
 
-Conclusion
+##Conclusion
 
 China and European union are the main source of silk to U.S. among these selected countries, and they are of similar amount every month. Also, there is not clear evidence in the silk field that tariffs affect the amount of importation.
 
 
 
+#The following portiong is contributed by Angela Zhai
 
+##Data
+
+Data is from USA Trade Census.(https://usatrade.census.gov/data)
+
+The data I used for plot is custom value of iron and steel importation from China in continuous 4 years(2015 to 2018).
+
+```{r echo=FALSE}
+#read excel
+import <- read.csv(file = "Imports.csv", header = TRUE, skip = 2, stringsAsFactors=FALSE)
+colnames(import) <- c("commodity", "country", "time", "customs_value", "none")
+import <- select(import, commodity:customs_value) %>%
+  filter(!(time %in% c("2015", "2016", "2017", "2018 through July")) & commodity == "72 Iron And Steel") %>%
+  mutate(month = match(word(time, 1, sep = " "), month.name), year = word(time, 2, sep = " ")
+         , customs_value = as.numeric(gsub(',', '', customs_value)))
+import_sum <- import %>%
+  group_by(year, month) %>%
+  summarise(value_sum = sum(customs_value))
+
+ggplot(data=import_sum, mapping=(aes(x=month, y=value_sum, color=year))) +
+  geom_point() +
+  geom_line() +
+  scale_y_continuous(name = "Customs Value of Iron and Steel Import", limits = c(0, 250000000)) +
+  scale_x_continuous(breaks = import_sum$month) +
+  ggtitle("Custom Value of Iron and Steel Import")
+```
+
+##Conclusion
+
+From the plot above, we can tell that trade war has no significant influence on the metal field, or has not yet. Obviously, irons and steels importation value from China in 2015 is extremely high, and some reports also indicated this phenomenon.
