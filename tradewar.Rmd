@@ -2,7 +2,9 @@
 title: "HW3_Tradewar"
 author: "Longhao"
 date: "September 26, 2018"
-output: pdf_document
+output: 
+  pdf_document: 
+    latex_engine: xelatex
 ---
 
 ```{r setup, include=FALSE}
